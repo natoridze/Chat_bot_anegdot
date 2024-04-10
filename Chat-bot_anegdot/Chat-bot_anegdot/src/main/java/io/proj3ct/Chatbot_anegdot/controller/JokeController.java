@@ -1,51 +1,47 @@
 package io.proj3ct.Chatbot_anegdot.controller;
 
 import io.proj3ct.Chatbot_anegdot.model.Joke;
-import io.proj3ct.Chatbot_anegdot.model.JokeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
+import io.proj3ct.Chatbot_anegdot.service.JokeService;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/jokes")
 public class JokeController {
-
-    private final JokeRepository jokeRepository;
-
     @Autowired
-    public JokeController(JokeRepository jokeRepository) {
-        this.jokeRepository = jokeRepository;
+    private JokeService jokeService;
+
+    // Метод для выдачи всех анекдотов
+    @GetMapping("/jokes")
+    public List<Joke> getAllJokes() {
+        return jokeService.getAllJokes();
     }
 
-    @GetMapping
-    public ResponseEntity<Iterable<Joke>> getAllJokes() {
-        return ResponseEntity.ok(jokeRepository.findAll());
+    // Метод для выдачи анекдота по ID
+    @GetMapping("/jokes/{id}")
+    public Joke getJokeById(@PathVariable int id) {
+        return jokeService.getJokeById(id);
     }
 
-    @PostMapping
-    public ResponseEntity<Joke> createJoke(@RequestBody Joke joke) {
-        return ResponseEntity.ok(jokeRepository.save(joke));
+    // Метод для создания нового анекдота
+    @PostMapping("/jokes")
+    public void createJoke(@RequestBody Joke joke) {
+        jokeService.createJoke(joke);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Joke> updateJoke(@PathVariable Integer id, @RequestBody Joke jokeDetails) {
-        Optional<Joke> jokeOptional = jokeRepository.findById(id);
-        if (!jokeOptional.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        jokeDetails.setId(id);
-        return ResponseEntity.ok(jokeRepository.save(jokeDetails));
+    // Метод для изменения существующего анекдота
+    @PutMapping("/jokes/{id}")
+    public void updateJoke(@PathVariable int id, @RequestBody Joke updatedJoke) {
+        jokeService.updateJoke(id, updatedJoke);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteJoke(@PathVariable Integer id) {
-        if (!jokeRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        jokeRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+    // Метод для удаления анекдота по ID
+    @DeleteMapping("/jokes/{id}")
+    public void deleteJoke(@PathVariable int id) {
+        jokeService.deleteJoke(id);
     }
-
+    @GetMapping("/jokes/random")
+    public void findRandomJoke() {
+        jokeService.getRandomJoke();
+    }
 }
